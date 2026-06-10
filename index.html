@@ -1,0 +1,650 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Misión: Arianna ✈️</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,600;1,400&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --sky:     #C8DEFF;
+      --dusk:    #E8D5F5;
+      --cloud:   #F5F0FF;
+      --navy:    #1B2A4A;
+      --gold:    #C9A84C;
+      --mist:    #7A8FAD;
+      --rose:    #E8A0B4;
+      --white:   #FFFFFF;
+    }
+
+    body {
+      min-height: 100vh;
+      background: linear-gradient(170deg, #0f1e3a 0%, #1a3a6e 45%, #2d5fa6 100%);
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+      font-family: 'DM Sans', sans-serif;
+      padding: 0 0 60px;
+      overflow-x: hidden;
+    }
+
+    /* ── Cielo animado ── */
+    .sky-bg {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 0;
+      overflow: hidden;
+    }
+    .star {
+      position: absolute;
+      background: #fff;
+      border-radius: 50%;
+      animation: twinkle var(--d, 3s) ease-in-out infinite;
+    }
+    @keyframes twinkle {
+      0%, 100% { opacity: 0.15; transform: scale(1); }
+      50%       { opacity: 0.9;  transform: scale(1.4); }
+    }
+
+    /* Avión cruzando la pantalla */
+    .plane {
+      position: fixed;
+      top: 12%;
+      left: -120px;
+      font-size: 2rem;
+      animation: fly 18s linear infinite;
+      z-index: 1;
+      filter: drop-shadow(0 2px 8px rgba(255,255,255,0.3));
+    }
+    @keyframes fly {
+      0%   { left: -120px; top: 12%; }
+      100% { left: 110%;   top: 8%;  }
+    }
+
+    /* Estela del avión */
+    .trail {
+      position: fixed;
+      top: 13.5%;
+      left: -80px;
+      width: 90px;
+      height: 2px;
+      background: linear-gradient(to right, transparent, rgba(255,255,255,0.6));
+      animation: fly 18s linear infinite;
+      z-index: 1;
+    }
+
+    /* ── Tarjeta boarding pass ── */
+    .card {
+      position: relative;
+      z-index: 10;
+      width: calc(100% - 32px);
+      max-width: 430px;
+      margin: 90px auto 0;
+    }
+
+    /* Cabecera tipo boarding pass */
+    .bp-header {
+      background: linear-gradient(135deg, var(--navy) 0%, #243d6e 100%);
+      border-radius: 24px 24px 0 0;
+      padding: 28px 26px 22px;
+      border-bottom: 2px dashed rgba(255,255,255,0.18);
+      position: relative;
+      overflow: hidden;
+    }
+    .bp-header::before {
+      content: '';
+      position: absolute;
+      width: 200px; height: 200px;
+      border-radius: 50%;
+      background: rgba(201,168,76,0.08);
+      top: -60px; right: -60px;
+    }
+
+    .airline-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 18px;
+    }
+    .airline-name {
+      font-size: 0.7rem;
+      font-weight: 600;
+      letter-spacing: 0.18em;
+      color: var(--gold);
+      text-transform: uppercase;
+    }
+    .flight-badge {
+      background: rgba(201,168,76,0.15);
+      border: 1px solid var(--gold);
+      border-radius: 20px;
+      padding: 3px 10px;
+      font-size: 0.68rem;
+      color: var(--gold);
+      letter-spacing: 0.1em;
+      font-weight: 600;
+    }
+
+    .route-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+    .airport {
+      text-align: center;
+      flex: 1;
+    }
+    .airport-code {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 2.6rem;
+      font-weight: 600;
+      color: var(--white);
+      line-height: 1;
+    }
+    .airport-name {
+      font-size: 0.65rem;
+      color: rgba(255,255,255,0.5);
+      letter-spacing: 0.05em;
+      margin-top: 2px;
+    }
+    .route-plane {
+      font-size: 1.3rem;
+      color: var(--rose);
+      flex: 0 0 auto;
+    }
+
+    .passenger-strip {
+      margin-top: 18px;
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+    }
+    .pax-block { flex: 1; }
+    .pax-label {
+      font-size: 0.6rem;
+      letter-spacing: 0.12em;
+      color: rgba(255,255,255,0.4);
+      text-transform: uppercase;
+    }
+    .pax-name {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--white);
+      margin-top: 2px;
+    }
+
+    /* Cuerpo del boarding pass */
+    .bp-body {
+      background: var(--cloud);
+      padding: 26px 24px 30px;
+      border-radius: 0 0 24px 24px;
+      box-shadow: 0 20px 60px rgba(10,20,60,0.4);
+    }
+
+    .section-title {
+      font-size: 0.68rem;
+      font-weight: 600;
+      letter-spacing: 0.14em;
+      color: var(--mist);
+      text-transform: uppercase;
+      margin-bottom: 14px;
+      margin-top: 22px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .section-title:first-child { margin-top: 0; }
+    .section-title::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: linear-gradient(to right, #d8d0e8, transparent);
+    }
+
+    label {
+      display: block;
+      font-size: 0.72rem;
+      font-weight: 600;
+      color: var(--mist);
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      margin-bottom: 5px;
+    }
+
+    .field { margin-bottom: 14px; }
+
+    input[type="date"],
+    input[type="time"],
+    select,
+    input[type="text"],
+    input[type="radio"] {
+      font-family: 'DM Sans', sans-serif;
+    }
+
+    input[type="date"],
+    input[type="time"],
+    select,
+    input[type="text"] {
+      width: 100%;
+      padding: 11px 14px;
+      border: 1.5px solid #ddd6f0;
+      border-radius: 12px;
+      background: #fff;
+      font-size: 0.95rem;
+      color: var(--navy);
+      appearance: none;
+      -webkit-appearance: none;
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    input[type="date"]:focus,
+    input[type="time"]:focus,
+    select:focus,
+    input[type="text"]:focus {
+      border-color: #9b7fd4;
+      box-shadow: 0 0 0 3px rgba(155,127,212,0.15);
+    }
+
+    .select-wrap { position: relative; }
+    .select-wrap::after {
+      content: '▾';
+      position: absolute;
+      right: 13px; top: 50%;
+      transform: translateY(-50%);
+      color: var(--mist);
+      pointer-events: none;
+    }
+
+    /* Radio pills */
+    .radio-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .radio-group input[type="radio"] { display: none; }
+    .radio-group label {
+      cursor: pointer;
+      background: #f0ebfa;
+      border: 1.5px solid #ddd6f0;
+      border-radius: 20px;
+      padding: 7px 14px;
+      font-size: 0.83rem;
+      font-weight: 500;
+      color: var(--navy);
+      letter-spacing: 0;
+      text-transform: none;
+      transition: all 0.18s;
+      user-select: none;
+    }
+    .radio-group input[type="radio"]:checked + label {
+      background: linear-gradient(135deg, #9b7fd4, #c47bbf);
+      border-color: transparent;
+      color: #fff;
+      box-shadow: 0 3px 10px rgba(155,127,212,0.35);
+    }
+
+    /* Escala de entusiasmo */
+    .scale-row {
+      display: flex;
+      justify-content: space-between;
+      gap: 6px;
+    }
+    .scale-row input[type="radio"] { display: none; }
+    .scale-row label {
+      flex: 1;
+      text-align: center;
+      background: #f0ebfa;
+      border: 1.5px solid #ddd6f0;
+      border-radius: 10px;
+      padding: 10px 4px;
+      font-size: 1.1rem;
+      cursor: pointer;
+      letter-spacing: 0;
+      text-transform: none;
+      transition: all 0.18s;
+    }
+    .scale-row input[type="radio"]:checked + label {
+      background: linear-gradient(135deg, #f7a8c0, #c47bbf);
+      border-color: transparent;
+      transform: scale(1.12);
+      box-shadow: 0 4px 12px rgba(244,114,182,0.35);
+    }
+
+    /* Barra de progreso tipo altímetro */
+    .altimeter {
+      background: #ede8f8;
+      border-radius: 10px;
+      height: 8px;
+      overflow: hidden;
+      margin-top: 6px;
+    }
+    .altimeter-fill {
+      height: 100%;
+      width: 0%;
+      border-radius: 10px;
+      background: linear-gradient(to right, #9b7fd4, #f7a8c0);
+      transition: width 0.4s ease;
+    }
+    .altitude-label {
+      font-size: 0.7rem;
+      color: var(--mist);
+      text-align: right;
+      margin-top: 3px;
+    }
+
+    /* Botones */
+    .btn-row {
+      display: flex;
+      gap: 12px;
+      margin-top: 26px;
+      position: relative;
+      min-height: 54px;
+    }
+    .btn-yes, .btn-no {
+      flex: 1;
+      padding: 15px 10px;
+      border: none;
+      border-radius: 16px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .btn-yes {
+      background: linear-gradient(135deg, #9b7fd4 0%, #c47bbf 100%);
+      color: #fff;
+      box-shadow: 0 6px 20px rgba(155,127,212,0.45);
+      transition: transform 0.15s, box-shadow 0.15s;
+    }
+    .btn-yes:active { transform: scale(0.97); }
+    .btn-no {
+      background: #f0ebfa;
+      color: var(--mist);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+      position: absolute;
+      width: 130px;
+      transition: left 0.15s ease, top 0.15s ease;
+    }
+
+    /* Mensaje de éxito */
+    #success-msg {
+      display: none;
+      text-align: center;
+      padding: 10px 0 6px;
+    }
+    .success-icon { font-size: 3rem; margin-bottom: 10px; }
+    #success-msg h2 {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.5rem;
+      color: var(--navy);
+      margin-bottom: 6px;
+    }
+    #success-msg p {
+      font-size: 0.9rem;
+      color: var(--mist);
+      line-height: 1.5;
+    }
+
+    /* Barcode decorativo */
+    .barcode {
+      margin-top: 24px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      opacity: 0.25;
+    }
+    .barcode-lines {
+      display: flex;
+      gap: 2px;
+    }
+    .barcode-lines span {
+      display: block;
+      height: 28px;
+      background: var(--navy);
+    }
+    .barcode-num {
+      font-size: 0.6rem;
+      letter-spacing: 0.1em;
+      color: var(--navy);
+      font-weight: 600;
+    }
+  </style>
+</head>
+<body>
+
+<!-- Fondo con estrellas -->
+<div class="sky-bg" id="sky"></div>
+<div class="plane">✈️</div>
+<div class="trail"></div>
+
+<div class="card">
+
+  <!-- Cabecera tipo boarding pass -->
+  <div class="bp-header">
+    <div class="airline-row">
+      <span class="airline-name">Fernando Airways ✦ FA-2025</span>
+      <span class="flight-badge">BOARDING PASS</span>
+    </div>
+    <div class="route-row">
+      <div class="airport">
+        <div class="airport-code">FER</div>
+        <div class="airport-name">Fernando Zapata</div>
+      </div>
+      <div class="route-plane">✈</div>
+      <div class="airport">
+        <div class="airport-code">ARI</div>
+        <div class="airport-name">Arianna Zermeño</div>
+      </div>
+    </div>
+    <div class="passenger-strip">
+      <div class="pax-block">
+        <div class="pax-label">Pasajero</div>
+        <div class="pax-name">Arianna Z. 🌙</div>
+      </div>
+      <div class="pax-block" style="text-align:right">
+        <div class="pax-label">Clase</div>
+        <div class="pax-name">Primera ✦</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Cuerpo del boarding pass -->
+  <div class="bp-body">
+
+    <form id="cita-form"
+          action="https://formsubmit.co/luisfernandozapatadavila61@gmail.com"
+          method="POST">
+
+      <input type="hidden" name="_captcha" value="false" />
+      <input type="hidden" name="_subject" value="✈️ ¡Arianna aceptó la cita, Fernando!" />
+
+      <!-- SECCIÓN 1: VUELO -->
+      <div class="section-title">📅 Detalles del vuelo</div>
+
+      <div class="field">
+        <label for="fecha">Fecha de despegue</label>
+        <input type="date" id="fecha" name="fecha" required />
+      </div>
+
+      <div class="field">
+        <label for="hora">Hora de abordaje</label>
+        <input type="time" id="hora" name="hora" required />
+      </div>
+
+      <div class="field">
+        <label for="plan">Destino del plan ✨</label>
+        <div class="select-wrap">
+          <select id="plan" name="plan" required>
+            <option value="" disabled selected>Selecciona tu ruta…</option>
+            <option value="Cafecito ☕">☕ Cafecito (vuelo corto)</option>
+            <option value="Cena 🍽️">🍽️ Cena (vuelo transatlántico)</option>
+            <option value="Helados 🍦">🍦 Helados (escala técnica)</option>
+            <option value="Cocteles 🍹">🍹 Cocteles (primera clase)</option>
+            <option value="Plan Sorpresa 🎁">🎁 Plan Sorpresa (destino clasificado)</option>
+            <option value="Lo que tú quieras 💜">💜 Lo que tú decidas, capitana</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- SECCIÓN 2: PREFERENCIAS DE VUELO -->
+      <div class="section-title">🌙 Preferencias de la capitana</div>
+
+      <div class="field">
+        <label>¿Prefieres ambiente…?</label>
+        <div class="radio-group">
+          <input type="radio" name="ambiente" id="a1" value="Íntimo y tranquilo 🕯️" />
+          <label for="a1">🕯️ Íntimo y tranquilo</label>
+          <input type="radio" name="ambiente" id="a2" value="Animado y con música 🎶" />
+          <label for="a2">🎶 Animado y con música</label>
+          <input type="radio" name="ambiente" id="a3" value="Al aire libre 🌿" />
+          <label for="a3">🌿 Al aire libre</label>
+          <input type="radio" name="ambiente" id="a4" value="Sorpréndeme 🎲" />
+          <label for="a4">🎲 Sorpréndeme</label>
+        </div>
+      </div>
+
+      <div class="field">
+        <label>¿Antojo o bebida preferida?</label>
+        <input type="text" name="antojo" placeholder="Ej. matcha latte, vino tinto, tacos…" />
+      </div>
+
+      <div class="field">
+        <label>¿Algo que Fernando deba saber? 💌</label>
+        <input type="text" name="nota_especial" placeholder="Alergias, manías, peticiones VIP…" />
+      </div>
+
+      <!-- SECCIÓN 3: ALTÍMETRO DE EMOCIÓN -->
+      <div class="section-title">🌡️ Nivel de emoción por la cita</div>
+
+      <div class="field">
+        <div class="scale-row" id="emojis-scale">
+          <input type="radio" name="emocion" id="e1" value="😐 Veamos" />
+          <label for="e1">😐</label>
+          <input type="radio" name="emocion" id="e2" value="🙂 Curiosa" />
+          <label for="e2">🙂</label>
+          <input type="radio" name="emocion" id="e3" value="😊 Bien!" />
+          <label for="e3">😊</label>
+          <input type="radio" name="emocion" id="e4" value="😄 Me late mucho" />
+          <label for="e4">😄</label>
+          <input type="radio" name="emocion" id="e5" value="🥰 100% entusiasmada" />
+          <label for="e5">🥰</label>
+        </div>
+        <div class="altimeter"><div class="altimeter-fill" id="alt-fill"></div></div>
+        <div class="altitude-label" id="alt-label">Altitud: 0 ft</div>
+      </div>
+
+      <!-- SECCIÓN 4: CONFIRMACIÓN -->
+      <div class="section-title">🛫 Confirmación de vuelo</div>
+
+      <div class="field">
+        <label>¿Confirmas tu boarding?</label>
+        <div class="radio-group">
+          <input type="radio" name="confirma" id="c1" value="¡Sí, aborden!" required />
+          <label for="c1">✅ ¡Sí, subo al avión!</label>
+          <input type="radio" name="confirma" id="c2" value="Necesito más datos del vuelo" />
+          <label for="c2">🤔 Necesito más datos</label>
+        </div>
+      </div>
+
+      <div class="btn-row" id="btn-container">
+        <button type="submit" class="btn-yes">¡Despegar! 🚀</button>
+        <button type="button" class="btn-no" id="btn-no">Tierra 🚫</button>
+      </div>
+
+    </form>
+
+    <div id="success-msg">
+      <div class="success-icon">🛫💜</div>
+      <h2>¡Vuelo confirmado, Arianna!</h2>
+      <p>Fernando ya recibió tu respuesta.<br>Prepara tu mejor sonrisa,<br>el piloto viene por ti. 🌙✨</p>
+    </div>
+
+    <!-- Barcode decorativo -->
+    <div class="barcode">
+      <div class="barcode-lines" id="barcode"></div>
+      <div class="barcode-num">FA2025 • ARI-FER • GATE 7</div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+  /* ── Estrellas ── */
+  const sky = document.getElementById('sky');
+  for (let i = 0; i < 80; i++) {
+    const s = document.createElement('div');
+    s.className = 'star';
+    const size = Math.random() * 3 + 1;
+    s.style.cssText = `
+      width:${size}px; height:${size}px;
+      top:${Math.random()*100}%; left:${Math.random()*100}%;
+      --d:${(Math.random()*3+2).toFixed(1)}s;
+      animation-delay:${(Math.random()*4).toFixed(1)}s;
+    `;
+    sky.appendChild(s);
+  }
+
+  /* ── Barcode decorativo ── */
+  const bc = document.getElementById('barcode');
+  for (let i = 0; i < 28; i++) {
+    const bar = document.createElement('span');
+    bar.style.width = (Math.random() > 0.5 ? 3 : 1) + 'px';
+    bc.appendChild(bar);
+  }
+
+  /* ── Altímetro de emoción ── */
+  const levels = [10, 30, 55, 78, 100];
+  const labels = ['Despegando...', 'Subiendo 🙂', 'Crucero 😊', 'Cielos abiertos 😄', 'Órbita 🥰'];
+  document.querySelectorAll('input[name="emocion"]').forEach((radio, i) => {
+    radio.addEventListener('change', () => {
+      document.getElementById('alt-fill').style.width = levels[i] + '%';
+      document.getElementById('alt-label').textContent = `Altitud: ${levels[i] * 350} ft — ${labels[i]}`;
+    });
+  });
+
+  /* ── Botón "No" esquivo ── */
+  const btnNo = document.getElementById('btn-no');
+
+  function initBtnNo() {
+    const row = document.getElementById('btn-container').getBoundingClientRect();
+    btnNo.style.position = 'fixed';
+    btnNo.style.width    = '130px';
+    btnNo.style.left     = (row.right - 134) + 'px';
+    btnNo.style.top      = row.top + 'px';
+    btnNo.style.zIndex   = '999';
+  }
+
+  function escapar() {
+    const vw = window.innerWidth;
+    const vh = window.innerHeight;
+    const bw = btnNo.offsetWidth  || 130;
+    const bh = btnNo.offsetHeight || 48;
+    const nx = Math.random() * (vw - bw - 20) + 10;
+    const ny = Math.random() * (vh - bh - 20) + 10;
+    btnNo.style.left = nx + 'px';
+    btnNo.style.top  = ny + 'px';
+    btnNo.style.transition = 'left 0.2s ease, top 0.2s ease';
+  }
+
+  window.addEventListener('load', initBtnNo);
+  btnNo.addEventListener('mouseover',  escapar);
+  btnNo.addEventListener('touchstart', escapar, { passive: true });
+  btnNo.addEventListener('click',      escapar);
+
+  /* ── Submit: mostrar mensaje in-page ── */
+  document.getElementById('cita-form').addEventListener('submit', function(e) {
+    e.preventDefault();
+    const data = new FormData(this);
+    fetch(this.action, { method: 'POST', body: data })
+      .then(() => {})
+      .catch(() => {});
+    this.style.display = 'none';
+    document.getElementById('success-msg').style.display = 'block';
+  });
+</script>
+
+</body>
+</html>
